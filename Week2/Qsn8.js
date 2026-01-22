@@ -1,0 +1,41 @@
+// "### **Adobe | Conceptual Round: Spread Operator Pitfall**
+
+// **Question:** What will be logged? How do you fix this using the spread operator while keeping the code readable?
+
+const state = {
+  user: { 
+    id: 101, 
+    details: { 
+        city: 'Bangalore' 
+        } 
+    },
+  theme: 'dark'
+};
+
+const newState = {...state };
+newState.user.details.city = 'Chennai';
+
+console.log(state.user.details.city); 
+// Expected output? Why did it change?"
+
+// Output:
+Chennai
+
+// Explanation:
+// const newState = {...state }; // This line is performing a shallow copy, not a deep copy.
+// user is copied by reference, theme by value (since its primitive), so if you do 
+// newState.theme = 'white'; 
+// console.log(state.theme); // Output- dark
+
+
+// How do you fix this using the spread operator while keeping the code readable?
+const newState = {
+  ...state,
+  user: {
+    ...state.user,
+    details: {
+      ...state.user.details,
+      city: 'Chennai'
+    }
+  }
+};
