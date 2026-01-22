@@ -1,0 +1,67 @@
+Question 2: ### **Microsoft | Technical Round: The Microtask Priority Riddle**
+
+*Question:** Predict the exact output. Explain why the `asyncFn` behaves differently than a standard promise chain.
+
+console.log('1 - Sync');
+
+setTimeout(() => {
+  console.log('2 - Macrotask');
+}, 0);
+
+async function asyncFn() {
+  console.log('3 - Inside Async');
+  await Promise.resolve();
+  console.log('4 - After Await');
+}
+
+asyncFn();
+
+Promise.resolve().then(() => {
+  console.log('5 - Microtask');
+});
+
+console.log('6 - Sync End');
+
+Output:
+1 - Sync
+3 - Inside Async
+6 - Sync End
+4 - After Await
+5 - Microtask
+2 - Macrotask
+
+
+Explanation:
+JS is synchronous, so console.log('1 - Sync') is called and then asyncFn() is called. Post that  console.log('3 - Inside Async') will print
+till it encounters first await. and then the next sync line console.log('6 - Sync End'); will execute.
+Now call stack is empty.
+
+Output till this point:
+1 - Sync
+3 - Inside Async
+6 - Sync End
+
+Post this, await pauses the execution, and console.log('4 - After Await'); is scheduled as a microtask.
+This happens immediately at the await as Promise is already resolved.
+Internally this transalates to -
+Promise.resolve().then(() => {
+  console.log('4 - After Await');
+});
+
+After asyncFn() finishes scheduling its continuation, this runs:
+Promise.resolve().then(() => {
+  console.log('5 - Microtask');
+});
+
+
+Microtasks are queued in this order:
+
+4 - After Await (from await)
+5 - Microtask (from .then())
+
+And finally Macrotask queue: 
+setTimeout(() => {
+  console.log('2 - Macrotask');
+}, 0);
+
+console.log('2 - Macrotask');
